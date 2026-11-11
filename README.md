@@ -2,7 +2,7 @@
 
 GitHub Repository Analyzer is an LLM-powered application that helps developers quickly understand an unfamiliar GitHub repository. Give it a repository URL, and the planned analyzer will gather repository metadata and selected source files, then produce an evidence-based architectural overview, potential code quality findings, and improvement suggestions.
 
-> **Project status:** The Python environment and read-only GitHub API client are in place. The analysis agent and Streamlit interface have not been implemented yet.
+> **Project status:** The Python environment, read-only GitHub API client, and bounded LangChain tools are in place. The analysis agent and Streamlit interface have not been implemented yet.
 
 ## What it will do
 
@@ -97,7 +97,7 @@ Install the project dependencies with `python -m pip install -r requirements.txt
 python -m pytest
 ```
 
-The read-only client is available in `github_client.py`. It validates repository URLs and can retrieve repository metadata, the README, the recursive file tree, and individual file contents. Public repositories can be analyzed without a token; the client reads `GITHUB_TOKEN` from the environment or `.env` when present.
+The read-only client is available in `github_client.py`. LangChain tools are available through `create_github_tools` in `tools/langchain_tools.py`. They expose repository metadata, the README, a filtered recursive file tree, and individual file reads. File reads are limited to 10 per tool set and 200 KB per file by default. Generated directories, binary files, minified files, and lockfiles are excluded from file reads. Public repositories can be accessed without a token; the client reads `GITHUB_TOKEN` from the environment or `.env` when present.
 
 ## Privacy and responsible use
 
@@ -107,7 +107,7 @@ The planned analyzer will send selected repository text to the configured LLM pr
 
 - [x] Add project configuration, dependency list, and environment variable template.
 - [x] Implement and test the GitHub API client.
-- [ ] Expose repository operations as agent tools.
+- [x] Expose repository operations as agent tools.
 - [ ] Build the analysis agent and structured report.
 - [ ] Create the Streamlit interface.
 - [ ] Add end-to-end testing and usage documentation.
