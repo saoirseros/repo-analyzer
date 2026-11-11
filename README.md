@@ -2,7 +2,7 @@
 
 GitHub Repository Analyzer is an LLM-powered application that helps developers quickly understand an unfamiliar GitHub repository. Give it a repository URL, and the planned analyzer will gather repository metadata and selected source files, then produce an evidence-based architectural overview, potential code quality findings, and improvement suggestions.
 
-> **Project status:** The project is under active development. The initial Python environment and project configuration are in place; the GitHub API client, analysis agent, and Streamlit interface have not been implemented yet.
+> **Project status:** The Python environment and read-only GitHub API client are in place. The analysis agent and Streamlit interface have not been implemented yet.
 
 ## What it will do
 
@@ -91,7 +91,13 @@ The Streamlit app entry point has not been added yet. Once the GitHub client, ag
 
 ## Development
 
-Install the project dependencies with `python -m pip install -r requirements.txt`. Automated tests will be added alongside the GitHub client and agent implementation.
+Install the project dependencies with `python -m pip install -r requirements.txt`. Run the GitHub client tests with:
+
+```powershell
+python -m pytest
+```
+
+The read-only client is available in `github_client.py`. It validates repository URLs and can retrieve repository metadata, the README, the recursive file tree, and individual file contents. Public repositories can be analyzed without a token; the client reads `GITHUB_TOKEN` from the environment or `.env` when present.
 
 ## Privacy and responsible use
 
@@ -100,7 +106,7 @@ The planned analyzer will send selected repository text to the configured LLM pr
 ## Roadmap
 
 - [x] Add project configuration, dependency list, and environment variable template.
-- [ ] Implement and test the GitHub API client.
+- [x] Implement and test the GitHub API client.
 - [ ] Expose repository operations as agent tools.
 - [ ] Build the analysis agent and structured report.
 - [ ] Create the Streamlit interface.
