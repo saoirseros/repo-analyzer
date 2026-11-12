@@ -2,7 +2,7 @@
 
 GitHub Repository Analyzer is an LLM-powered application that helps developers quickly understand an unfamiliar GitHub repository. Give it a repository URL, and the planned analyzer will gather repository metadata and selected source files, then produce an evidence-based architectural overview, potential code quality findings, and improvement suggestions.
 
-> **Project status:** The Python environment, read-only GitHub API client, bounded LangChain tools, and structured analysis agent are in place. The Streamlit interface has not been implemented yet.
+> **Project status:** The Python environment, read-only GitHub API client, bounded LangChain tools, structured analysis agent, and Streamlit interface are in place.
 
 ## What it will do
 
@@ -87,7 +87,13 @@ Never commit `.env` or expose API keys in source code, screenshots, logs, or iss
 
 ## Running the application
 
-The Streamlit app entry point has not been added yet. Once the GitHub client, agent, and UI are implemented, this section will include the command to launch the app and instructions for analyzing a repository.
+After completing the setup and configuring `.env`, launch the Streamlit interface:
+
+```powershell
+streamlit run app.py
+```
+
+Paste a repository URL, choose a model and source-file limit in the sidebar, and select **Analyze repository**. The report is shown in tabs and can be downloaded as JSON.
 
 ## Development
 
@@ -109,5 +115,5 @@ The planned analyzer will send selected repository text to the configured LLM pr
 - [x] Implement and test the GitHub API client.
 - [x] Expose repository operations as agent tools.
 - [x] Build the analysis agent and structured report.
-- [ ] Create the Streamlit interface.
+- [x] Create the Streamlit interface.
 - [ ] Add end-to-end testing and usage documentation.
