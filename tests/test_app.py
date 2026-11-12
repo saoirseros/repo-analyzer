@@ -1,6 +1,8 @@
 from pathlib import Path
 from unittest.mock import patch
 
+import httpx
+from openai import AuthenticationError
 from streamlit.testing.v1 import AppTest
 
 from agent.schemas import RepositoryAnalysisReport
@@ -34,7 +36,31 @@ def test_app_requires_openai_key_before_running_analysis(monkeypatch):
     app.text_input[0].set_value("https://github.com/octocat/Hello-World")
     app.form_submit_button[0].click().run()
 
-    assert any("Configure OPENAI_API_KEY" in error.value for error in app.error)
+    assert any("Set OPENAI_API_KEY" in error.value for error in app.error)
+
+
+def test_app_rejects_placeholder_openai_key(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "your_api_key_here")
+    app = run_app()
+    app.text_input[0].set_value("https://github.com/octocat/Hello-World")
+    app.form_submit_button[0].click().run()
+
+    assert any("Replace the example placeholder value" in error.value for error in app.error)
+
+
+def test_app_shows_actionable_message_when_openai_rejects_key(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-invalid-key")
+    response = httpx.Response(
+        401,
+        request=httpx.Request("POST", "https://api.openai.com/v1/chat/completions"),
+    )
+    error = AuthenticationError("Invalid API key", response=response, body=None)
+    with patch("agent.runner.analyze_repository", side_effect=error):
+        app = run_app()
+        app.text_input[0].set_value("https://github.com/octocat/Hello-World")
+        app.form_submit_button[0].click().run()
+
+    assert any("OpenAI rejected the configured API key" in item.value for item in app.error)
 
 
 def test_app_renders_analysis_report(monkeypatch):

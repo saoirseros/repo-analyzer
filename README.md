@@ -78,7 +78,7 @@ Set the following values in `.env`:
 | `GITHUB_TOKEN` | Optional for public repositories; recommended for higher API limits. |
 | `OPENAI_MODEL` | OpenAI model name used by the analyzer. |
 
-Never commit `.env` or expose API keys in source code, screenshots, logs, or issue reports. The `.env` file is excluded by `.gitignore`.
+Replace the example placeholder values with your own credentials. Never commit `.env` or expose API keys in source code, screenshots, logs, or issue reports. The `.env` file is excluded by `.gitignore`.
 
 ## Running the application
 

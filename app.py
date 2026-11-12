@@ -6,7 +6,7 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 from langgraph.errors import GraphRecursionError
-from openai import OpenAIError
+from openai import AuthenticationError, OpenAIError
 
 from agent.runner import DEFAULT_MODEL, analyze_repository
 from agent.schemas import RepositoryAnalysisReport
@@ -135,8 +135,12 @@ if submitted:
     except ValueError as exc:
         st.error(str(exc))
     else:
-        if not os.getenv("OPENAI_API_KEY"):
-            st.error("Configure OPENAI_API_KEY in your .env file before starting an analysis.")
+        api_key = os.getenv("OPENAI_API_KEY", "").strip()
+        if not api_key or api_key.lower().startswith(("your_", "your-", "replace_", "replace-")):
+            st.error(
+                "Set OPENAI_API_KEY in .env to a valid OpenAI API key. "
+                "Replace the example placeholder value before analyzing."
+            )
         else:
             try:
                 with st.status(
@@ -151,6 +155,11 @@ if submitted:
                     )
                     st.session_state.analysis_report = report
                     status.update(label="Repository analysis complete.", state="complete")
+            except AuthenticationError:
+                st.error(
+                    "OpenAI rejected the configured API key. Check OPENAI_API_KEY in .env, "
+                    "save a valid key, and restart the app."
+                )
             except (GitHubAPIError, OpenAIError, GraphRecursionError, RuntimeError, ValueError) as exc:
                 st.error(f"Analysis failed: {exc}")
 
