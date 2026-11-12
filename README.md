@@ -53,6 +53,7 @@ cd github-repo-analyzer
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
 ```
 
 If PowerShell prevents activation, you can invoke the environment's Python directly:
@@ -61,13 +62,7 @@ If PowerShell prevents activation, you can invoke the environment's Python direc
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-### 3. Install dependencies
-
-```powershell
-python -m pip install -r requirements.txt
-```
-
-### 4. Configure API credentials
+### 3. Configure API credentials
 
 Copy the example environment file and add your credentials:
 
@@ -90,7 +85,7 @@ Never commit `.env` or expose API keys in source code, screenshots, logs, or iss
 After completing the setup and configuring `.env`, launch the Streamlit interface:
 
 ```powershell
-streamlit run app.py
+.\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
 Paste a repository URL, choose a model and source-file limit in the sidebar, and select **Analyze repository**. The report is shown in tabs and can be downloaded as JSON.
