@@ -116,6 +116,19 @@ def test_analyze_repository_returns_validated_structured_response(monkeypatch):
     assert fake_agent.invoke.call_args.kwargs["config"] == {"recursion_limit": 20}
 
 
+def test_analyze_repository_uses_default_recursion_limit(monkeypatch):
+    fake_agent = Mock()
+    fake_agent.invoke.return_value = {"structured_response": make_report()}
+    monkeypatch.setattr(runner, "GitHubClient", lambda url: Mock())
+    monkeypatch.setattr(runner, "create_repository_analysis_agent", lambda **kwargs: fake_agent)
+
+    runner.analyze_repository("https://github.com/octocat/Hello-World")
+
+    assert fake_agent.invoke.call_args.kwargs["config"] == {
+        "recursion_limit": runner.DEFAULT_RECURSION_LIMIT
+    }
+
+
 def test_analyze_repository_fails_if_structured_response_is_missing(monkeypatch):
     fake_agent = Mock()
     fake_agent.invoke.return_value = {}

@@ -155,6 +155,11 @@ if submitted:
                     )
                     st.session_state.analysis_report = report
                     status.update(label="Repository analysis complete.", state="complete")
+            except GraphRecursionError:
+                st.error(
+                    "The agent reached its step limit before finishing. Try again with a "
+                    "smaller source-file limit."
+                )
             except GoogleAuthenticationError:
                 st.error(
                     "Google rejected the configured API key. Check GOOGLE_API_KEY in .env, "
@@ -163,7 +168,6 @@ if submitted:
             except (
                 GitHubAPIError,
                 GoogleGenerativeAIError,
-                GraphRecursionError,
                 RuntimeError,
                 ValueError,
             ) as exc:
