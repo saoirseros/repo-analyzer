@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain_core.language_models import BaseChatModel
 from langgraph.graph.state import CompiledStateGraph
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import ValidationError
 
 from agent.schemas import RepositoryAnalysisReport
@@ -20,7 +20,7 @@ from tools.langchain_tools import (
     create_github_tools,
 )
 
-DEFAULT_MODEL = "gpt-4o-mini"
+DEFAULT_MODEL = "gemini-3.1-flash-lite"
 DEFAULT_RECURSION_LIMIT = 30
 
 _SYSTEM_PROMPT = """You analyze GitHub repositories using the supplied read-only tools.
@@ -45,10 +45,12 @@ def create_repository_analysis_agent(
     """Construct an agent with bounded GitHub tools and structured report output."""
     load_dotenv()
     if model is None:
-        if not os.getenv("OPENAI_API_KEY"):
-            raise ValueError("OPENAI_API_KEY must be configured before running an analysis.")
-        model = ChatOpenAI(
-            model=model_name or os.getenv("OPENAI_MODEL") or DEFAULT_MODEL,
+        api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY must be configured before running an analysis.")
+        model = ChatGoogleGenerativeAI(
+            model=model_name or os.getenv("GOOGLE_MODEL") or DEFAULT_MODEL,
+            api_key=api_key,
             temperature=0,
         )
 

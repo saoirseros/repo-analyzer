@@ -6,7 +6,7 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 from langgraph.errors import GraphRecursionError
-from openai import AuthenticationError, OpenAIError
+from langchain_google_genai.chat_models import GoogleAuthenticationError, GoogleGenerativeAIError
 
 from agent.runner import DEFAULT_MODEL, analyze_repository
 from agent.schemas import RepositoryAnalysisReport
@@ -97,15 +97,15 @@ st.write(
     "AI-generated architecture summary, code quality findings, and suggestions."
 )
 st.info(
-    "Repository files are sent to the configured OpenAI API for analysis. "
-    "Only analyze repositories whose contents you are authorized to share."
+    "Repository files are sent to Google's Gemini API for analysis. The free tier may use "
+    "submitted content to improve Google products; do not analyze private or confidential code."
 )
 
 with st.sidebar:
     st.header("Analysis settings")
     model_name = st.text_input(
-        "OpenAI model",
-        value=os.getenv("OPENAI_MODEL") or DEFAULT_MODEL,
+        "Gemini model",
+        value=os.getenv("GOOGLE_MODEL") or DEFAULT_MODEL,
         help="Model used to inspect the repository and generate the report.",
     )
     max_file_reads = st.slider(
@@ -135,10 +135,10 @@ if submitted:
     except ValueError as exc:
         st.error(str(exc))
     else:
-        api_key = os.getenv("OPENAI_API_KEY", "").strip()
+        api_key = (os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY") or "").strip()
         if not api_key or api_key.lower().startswith(("your_", "your-", "replace_", "replace-")):
             st.error(
-                "Set OPENAI_API_KEY in .env to a valid OpenAI API key. "
+                "Set GOOGLE_API_KEY in .env to a valid Google AI Studio API key. "
                 "Replace the example placeholder value before analyzing."
             )
         else:
@@ -155,12 +155,18 @@ if submitted:
                     )
                     st.session_state.analysis_report = report
                     status.update(label="Repository analysis complete.", state="complete")
-            except AuthenticationError:
+            except GoogleAuthenticationError:
                 st.error(
-                    "OpenAI rejected the configured API key. Check OPENAI_API_KEY in .env, "
+                    "Google rejected the configured API key. Check GOOGLE_API_KEY in .env, "
                     "save a valid key, and restart the app."
                 )
-            except (GitHubAPIError, OpenAIError, GraphRecursionError, RuntimeError, ValueError) as exc:
+            except (
+                GitHubAPIError,
+                GoogleGenerativeAIError,
+                GraphRecursionError,
+                RuntimeError,
+                ValueError,
+            ) as exc:
                 st.error(f"Analysis failed: {exc}")
 
 if st.session_state.analysis_report is not None:

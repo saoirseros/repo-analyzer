@@ -1,6 +1,6 @@
 # GitHub Repository Analyzer
 
-GitHub Repository Analyzer is an LLM-powered application that helps developers quickly understand an unfamiliar GitHub repository. Give it a repository URL, and the planned analyzer will gather repository metadata and selected source files, then produce an evidence-based architectural overview, potential code quality findings, and improvement suggestions.
+GitHub Repository Analyzer is an LLM-powered application that helps developers quickly understand an unfamiliar GitHub repository. Give it a repository URL, and the analyzer gathers repository metadata and selected source files, then produces an evidence-based architectural overview, potential code quality findings, and improvement suggestions.
 
 > **Project status:** The Python environment, read-only GitHub API client, bounded LangChain tools, structured analysis agent, and Streamlit interface are in place.
 
@@ -28,7 +28,7 @@ The agent is intended to analyze repository content as untrusted input and will 
 - **Python** for the application and GitHub API client
 - **GitHub REST API** for repository metadata and file contents
 - **LangChain and LangGraph** for LLM tools and agent orchestration
-- **OpenAI API** for analysis and report generation
+- **Google Gemini Developer API** for analysis and report generation
 - **Streamlit** for the user interface
 - **Pydantic** for structured data and report models
 - **pytest** for automated tests
@@ -36,7 +36,7 @@ The agent is intended to analyze repository content as untrusted input and will 
 ## Requirements
 
 - Python 3.10 or newer
-- An OpenAI API key
+- A Google AI Studio API key. The default Gemini model is listed on Google's free tier, subject to current model availability and usage limits.
 - A GitHub personal access token is recommended to increase API rate limits. Public repositories can generally be accessed without authentication; private repository access will require appropriate permissions.
 
 ## Getting started
@@ -70,15 +70,29 @@ Copy the example environment file and add your credentials:
 Copy-Item .env.example .env
 ```
 
+#### Get a Gemini API key
+
+1. Open [Google AI Studio's API keys page](https://aistudio.google.com/apikey) and sign in with your Google account.
+2. Accept the Gemini API terms if prompted.
+3. Select **Create API key**. If prompted to choose a project, use the project AI Studio created or import a Google Cloud project you control.
+4. Copy the generated key and keep it private.
+5. In `.env`, replace the `GOOGLE_API_KEY` placeholder with the key:
+
+   ```text
+   GOOGLE_API_KEY=paste-your-key-here
+   ```
+
+Do not paste the key into chat, commit it, or put it in screenshots. Google's free tier has usage limits, and Google may use free-tier content to improve its products, so use only public, non-confidential repositories.
+
 Set the following values in `.env`:
 
 | Variable | Description |
 | --- | --- |
-| `OPENAI_API_KEY` | API key used to access the OpenAI API. |
+| `GOOGLE_API_KEY` | API key from Google AI Studio used to access the Gemini API. `GEMINI_API_KEY` is also accepted. |
 | `GITHUB_TOKEN` | Optional for public repositories; recommended for higher API limits. |
-| `OPENAI_MODEL` | OpenAI model name used by the analyzer. |
+| `GOOGLE_MODEL` | Gemini model name. Defaults to `gemini-3.1-flash-lite`. |
 
-Replace the example placeholder values with your own credentials. Never commit `.env` or expose API keys in source code, screenshots, logs, or issue reports. The `.env` file is excluded by `.gitignore`.
+Replace the example placeholder values with your own credentials. The Gemini free tier has usage limits, and Google may use free-tier content to improve its products. Do not send private or confidential repository code to the free-tier API. Never commit `.env` or expose API keys in source code, screenshots, logs, or issue reports. The `.env` file is excluded by `.gitignore`.
 
 ## Running the application
 
@@ -111,4 +125,4 @@ The planned analyzer will send selected repository text to the configured LLM pr
 - [x] Expose repository operations as agent tools.
 - [x] Build the analysis agent and structured report.
 - [x] Create the Streamlit interface.
-- [ ] Add end-to-end testing and usage documentation.
+- [ ] Add end-to-end testing.

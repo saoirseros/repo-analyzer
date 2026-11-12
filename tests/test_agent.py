@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 import pytest
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 import agent.runner as runner
 from agent.schemas import (
@@ -68,17 +68,38 @@ def test_report_schema_rejects_unknown_severity():
 def test_agent_factory_builds_langgraph_agent_without_api_request():
     agent = runner.create_repository_analysis_agent(
         client=Mock(),
-        model=ChatOpenAI(model="gpt-4o-mini", api_key="test-key"),
+        model=ChatGoogleGenerativeAI(
+            model=runner.DEFAULT_MODEL,
+            api_key="test-key",
+        ),
     )
 
     assert {"model", "tools"} <= set(agent.nodes)
 
 
+def test_agent_uses_google_api_key_and_free_tier_default_model(monkeypatch):
+    monkeypatch.setenv("GOOGLE_API_KEY", "test-google-key")
+    monkeypatch.setattr(runner, "load_dotenv", lambda: None)
+    monkeypatch.setattr(runner, "create_agent", lambda **kwargs: kwargs)
+    model_factory = Mock(return_value=Mock())
+    monkeypatch.setattr(runner, "ChatGoogleGenerativeAI", model_factory)
+
+    configuration = runner.create_repository_analysis_agent(client=Mock())
+
+    assert configuration["model"] is model_factory.return_value
+    assert model_factory.call_args.kwargs == {
+        "model": "gemini-3.1-flash-lite",
+        "api_key": "test-google-key",
+        "temperature": 0,
+    }
+
+
 def test_agent_requires_api_key_when_model_is_not_injected(monkeypatch):
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.setattr(runner, "load_dotenv", lambda: None)
 
-    with pytest.raises(ValueError, match="OPENAI_API_KEY"):
+    with pytest.raises(ValueError, match="GOOGLE_API_KEY"):
         runner.create_repository_analysis_agent(client=Mock())
 
 
